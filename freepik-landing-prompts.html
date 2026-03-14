@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Generador de imágenes para landing — Freepik IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0ede8;
+    --text2: #888880;
+    --text3: #555550;
+    --accent: #c9a96e;
+    --accent2: #e8c98a;
+    --red: #e05c4a;
+    --green: #4caf7d;
+    --blue: #5b9bd5;
+    --warn: #d4944a;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    border-bottom: 0.5px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .topbar-logo {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .topbar-sub { font-size: 12px; color: var(--text3); }
+  .prog-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .prog-track-mini {
+    width: 120px;
+    height: 2px;
+    background: var(--border2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .prog-fill-mini {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width .5s ease;
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    min-height: calc(100vh - 53px);
+  }
+
+  /* LEFT PANEL */
+  .left {
+    border-right: 0.5px solid var(--border);
+    padding: 24px 20px;
+    position: sticky;
+    top: 53px;
+    height: calc(100vh - 53px);
+    overflow-y: auto;
+  }
+  .left::-webkit-scrollbar { width: 4px; }
+  .left::-webkit-scrollbar-track { background: transparent; }
+  .left::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 14px;
+  }
+
+  /* UPLOAD */
+  .upload-zone {
+    border: 1px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: border-color .2s, background .2s;
+    background: var(--bg2);
+  }
+  .upload-zone:hover { border-color: var(--accent); background: var(--bg3); }
+  .upload-zone.loaded { border-style: solid; border-color: var(--green); }
+  .upload-icon {
+    width: 32px; height: 32px;
+    margin: 0 auto 8px;
+    opacity: .4;
+  }
+  .upload-icon svg { width: 32px; height: 32px; stroke: var(--text); }
+  .upload-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .upload-text.ok { color: var(--green); font-weight: 500; }
+  #fi { display: none; }
+  #pv { display: none; text-align: center; margin-bottom: 14px; }
+  #pv img {
+    max-height: 100px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border2);
+  }
+
+  /* FIELDS */
+  .field-group { margin-bottom: 10px; }
+  .field-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 4px;
+  }
+  .field-group input {
+    width: 100%;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 8px 10px;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    transition: border-color .2s;
+  }
+  .field-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field-group input::placeholder { color: var(--text3); }
+
+  .divider { height: 0.5px; background: var(--border); margin: 18px 0; }
+
+  /* SECTION NAV */
+  .sec-nav { display: flex; flex-direction: column; gap: 4px; }
+  .sec-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background .15s;
+    border: 0.5px solid transparent;
+  }
+  .sec-nav-item:hover { background: var(--bg3); }
+  .sec-nav-item.active { background: var(--bg3); border-color: var(--accent); }
+  .sec-nav-item.done { background: rgba(76,175,125,0.06); border-color: rgba(76,175,125,0.3); }
+  .sni-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text2);
+    flex-shrink: 0;
+  }
+  .sni-num.active-n { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .sni-num.done-n { background: var(--green); color: var(--bg); border-color: var(--green); }
+  .sni-name { font-size: 12px; color: var(--text2); }
+  .sni-name.active-t { color: var(--text); font-weight: 500; }
+  .sni-dots { display: flex; gap: 2px; margin-left: auto; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border2); }
+  .dot.on { background: var(--accent); }
+  .dot.hi { background: var(--red); }
+
+  /* RIGHT PANEL */
+  .right {
+    padding: 32px 40px;
+    overflow-y: auto;
+    max-height: calc(100vh - 53px);
+  }
+  .right::-webkit-scrollbar { width: 4px; }
+  .right::-webkit-scrollbar-track { background: transparent; }
+  .right::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* WELCOME STATE */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    gap: 12px;
+  }
+  .welcome-icon {
+    width: 56px; height: 56px;
+    border: 0.5px solid var(--border2);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+    background: var(--bg2);
+  }
+  .welcome h2 { font-size: 20px; font-weight: 500; color: var(--text); }
+  .welcome p { font-size: 13px; color: var(--text2); max-width: 360px; line-height: 1.6; }
+  .welcome-arrow {
+    font-size: 12px;
+    color: var(--text3);
+    border: 0.5px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+
+  /* SECTION DETAIL */
+  .sec-detail { display: none; animation: fadeIn .2s ease; }
+  .sec-detail.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sec-header { margin-bottom: 24px; }
+  .sec-num-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .sec-num-badge span {
+    width: 18px; height: 18px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .sec-title-main { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .sec-tag-main { font-size: 13px; color: var(--text2); }
+
+  /* NEURO PILLS */
+  .neuro-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .npill {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .npill.red { background: rgba(224,92,74,0.12); color: var(--red); border: 0.5px solid rgba(224,92,74,0.3); }
+  .npill.blue { background: rgba(91,155,213,0.12); color: var(--blue); border: 0.5px solid rgba(91,155,213,0.3); }
+  .npill.green { background: rgba(76,175,125,0.12); color: var(--green); border: 0.5px solid rgba(76,175,125,0.3); }
+  .npill.warn { background: rgba(212,148,74,0.12); color: var(--warn); border: 0.5px solid rgba(212,148,74,0.3); }
+
+  /* RULE CARD */
+  .rule-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    border-left: 2px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .rule-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+  .rule-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+  .rule-body { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+  /* FREEPIK CONFIG */
+  .config-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .config-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    flex: 1;
+    min-width: 100px;
+  }
+  .config-chip-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+  .config-chip-val { font-size: 12px; font-weight: 500; color: var(--accent2); }
+
+  /* PROMPT BOX */
+  .prompt-section { margin-bottom: 20px; }
+  .prompt-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 8px;
+  }
+  .prompt-box {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 80px;
+    transition: border-color .2s;
+  }
+  .prompt-box.generated { border-color: rgba(201,169,110,0.4); }
+  .prompt-placeholder { color: var(--text3); font-style: italic; font-family: 'DM Sans', sans-serif; font-size: 13px; }
+
+  /* STEPS */
+  .steps-section { margin-bottom: 24px; }
+  .steps-list { display: flex; flex-direction: column; gap: 8px; }
+  .step-item {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 12px;
+    background: var(--bg2);
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border);
+  }
+  .step-n { font-size: 11px; color: var(--text3); padding-top: 1px; font-weight: 500; }
+  .step-body { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .step-body strong { color: var(--accent2); font-weight: 500; }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 8px; }
+  .btn-gen {
+    flex: 2;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    padding: 11px 20px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  .btn-gen:hover { background: var(--accent2); }
+  .btn-gen:active { transform: scale(.98); }
+  .btn-gen.ok { background: var(--green); color: #fff; }
+  .btn-done-sec {
+    flex: 1;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    padding: 11px 16px;
+    background: transparent;
+    color: var(--green);
+    border: 0.5px solid rgba(76,175,125,0.4);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-done-sec:hover { background: rgba(76,175,125,0.08); }
+
+  /* RESPONSIVE */
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+    .left { position: static; height: auto; border-right: none; border-bottom: 0.5px solid var(--border); }
+    .right { padding: 20px 16px; max-height: none; }
+    .topbar { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-logo">Freepik Landing Prompts</div>
+    <div class="topbar-sub">Sistema de imágenes con impacto visual máximo</div>
+  </div>
+  <div class="prog-mini">
+    <span id="prog-label">0 / 9</span>
+    <div class="prog-track-mini"><div class="prog-fill-mini" id="prog-fill"></div></div>
+    <span id="prog-pct">0%</span>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="left">
+    <div class="panel-title">Tu producto</div>
+
+    <div class="upload-zone" id="uz" onclick="document.getElementById('fi').click()">
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </div>
+      <div class="upload-text" id="uz-txt">Sube la foto de tu producto<br/>JPG, PNG — referencia para Freepik</div>
+      <input type="file" id="fi" accept="image/*" onchange="handleImg(event)"/>
+    </div>
+    <div id="pv"><img id="pvi" src="" alt="producto"/></div>
+
+    <div class="field-group">
+      <label>Nombre del producto</label>
+      <input type="text" id="f-prod" placeholder="ej: suero facial Gold Serum"/>
+    </div>
+    <div class="field-group">
+      <label>Beneficio principal</label>
+      <input type="text" id="f-ben" placeholder="ej: elimina arrugas en 21 días"/>
+    </div>
+    <div class="field-group">
+      <label>Audiencia</label>
+      <input type="text" id="f-aud" placeholder="ej: mujeres 40-55 años"/>
+    </div>
+    <div class="field-group">
+      <label>Paleta / estilo visual</label>
+      <input type="text" id="f-est" placeholder="ej: negro y dorado, lujo minimalista"/>
+    </div>
+    <div class="field-group">
+      <label>Descripción visual del empaque</label>
+      <input type="text" id="f-col" placeholder="ej: frasco negro tapa dorada, 30ml"/>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="panel-title">Secciones</div>
+    <div class="sec-nav" id="sec-nav"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right" id="right-panel">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </div>
+      <h2>Sistema de imágenes para landing</h2>
+      <p>Sube la foto de tu producto, llena los datos y genera el prompt de cada sección con principios de neuromarketing aplicados.</p>
+      <div class="welcome-arrow">Selecciona una sección en el panel izquierdo →</div>
+    </div>
+    <div id="sec-panels"></div>
+  </div>
+</div>
+
+<script>
+const secs = [
+  {
+    name:'Hero — Primer impacto',
+    tag:'Detiene el scroll en 0.3 segundos',
+    impact:5,
+    neuro:['Dominancia visual','Punto focal único','Contraste extremo','Tensión aspiracional'],
+    nc:['red','red','blue','blue'],
+    regla_titulo:'Regla del punto focal único',
+    regla:'Una sola cosa debe dominar el 60% del frame. El ojo humano no sabe dónde mirar si hay dos focos. El producto ocupa el centro con fondo que desaparece. Nada compite con él.',
+    influence:65, ratio:'16:9 web / 4:5 redes', modo:'Realismo fotográfico máximo',
+    prompt:(p,b,a,e,c)=>`Epic commercial product photography of [${c||p}], SINGLE HERO SHOT, product dominates 60% of frame with absolute sharp focus, everything else fades to black or pure white, extreme contrast between product and background, cinematic dramatic studio lighting with one hard key light creating deep shadows on one side and bright highlights on the other, [${c||'exact product packaging and colors'}] crystal clear, the product feels IMPOSSIBLY desirable, shot at slight low angle (5-10 degrees) to create dominance and power, ${e||'dark luxury premium aesthetic'}, 8k photorealistic, no people, no props, just the product and light, the viewer cannot look away`,
+    steps:[
+      {t:'Genera primero sin referencia',d:'para ver qué imagen crea Freepik con solo el prompt'},
+      {t:'Luego añade referencia al 65%',d:'para que el producto se parezca al tuyo exacto'},
+      {t:'Genera 6 variantes',d:'elige la que tenga el contraste más dramático'},
+      {t:'Ratio 16:9',d:'con el producto centrado — deja espacio arriba para el titular'}
+    ]
+  },
+  {
+    name:'Problema — Espejo emocional',
+    tag:'El visitante piensa: "eso soy yo"',
+    impact:4,
+    neuro:['Espejo neuronal','Dolor reconocible','Paleta desaturada','Sin producto aún'],
+    nc:['warn','warn','blue','green'],
+    regla_titulo:'Regla del espejo neuronal',
+    regla:'Las neuronas espejo hacen que el cerebro sienta lo que ve. Una persona que sufre el mismo problema activa la empatía inmediata. Colores fríos y desaturados amplifican la sensación de "esto no está bien".',
+    influence:0, ratio:'4:5 o 1:1', modo:'Fotografía documental realista',
+    prompt:(p,b,a,e,c)=>`Raw authentic close-up portrait of ${a||'a person'} experiencing the EXACT problem that [${p}] solves, they clearly do NOT have "${b}" yet, facial expression shows real frustration, tiredness or insecurity — NOT overdramatic, REAL human emotion, DESATURATED color palette, muted tones, slightly underexposed, documentary photography style with grain, natural window light casting soft shadows, no makeup perfection, real skin, real person, shallow depth of field, the viewer feels this person's struggle instantly, NO product visible, this is the "before" moment`,
+    steps:[
+      {t:'NO uses referencia del producto',d:'esta imagen no tiene tu producto — es pura emoción'},
+      {t:'Especifica el problema exacto',d:'cuanto más específico el dolor, más conexión emocional'},
+      {t:'Pide "grain" y desaturación',d:'hace que la imagen se sienta más real y documental'},
+      {t:'Genera 4 variantes',d:'elige la cara más auténtica, no la más bonita'}
+    ]
+  },
+  {
+    name:'Solución — El momento eureka',
+    tag:'El producto aparece como respuesta obvia',
+    impact:4,
+    neuro:['Contraste emocional','Narrativa visual','Luz de alivio','Producto como héroe'],
+    nc:['blue','blue','green','red'],
+    regla_titulo:'Regla del contraste emocional',
+    regla:'El cerebro compara en milisegundos. Esta imagen debe sentirse visualmente OPUESTA a la del problema — más luz, colores más cálidos, expresión de alivio. El producto aparece en manos de la persona como si fuera el objeto que lo cambia todo.',
+    influence:70, ratio:'4:5', modo:'Editorial lifestyle con luz natural',
+    prompt:(p,b,a,e,c)=>`Lifestyle photography, ${a||'person'} holding [${c||p}] with an expression of genuine RELIEF and DISCOVERY — the "aha moment" on their face, WARM natural window light flooding the scene from one side creating a hopeful golden glow, the [${c||'product with exact packaging'}] is IN SHARP FOCUS held at chest level, the person's face is softly blurred behind but emotion is perfectly readable, background transitions from dark (where they came from) to bright (where they're going), ${e||'warm editorial photography'}, this image feels like the turning point in a story, authentic not posed`,
+    steps:[
+      {t:'Referencia al 70%',d:'el producto debe ser reconocible en las manos de la persona'},
+      {t:'Pide iluminación direccional',d:'"warm light from left side" crea sensación de esperanza'},
+      {t:'El producto en foco, persona detrás',d:'guía el ojo del espectador al producto primero'},
+      {t:'Genera con y sin persona',d:'a veces el producto solo con la expresión al fondo funciona mejor'}
+    ]
+  },
+  {
+    name:'Beneficios — El resultado tangible',
+    tag:'Muestra el "después" de forma irresistible',
+    impact:5,
+    neuro:['Visualización del resultado','Aspiración realista','Color saturado','Efecto halo'],
+    nc:['green','green','red','blue'],
+    regla_titulo:'Regla de la aspiración alcanzable',
+    regla:'El resultado debe verse POSIBLE, no imposible. Si la transformación parece demasiado perfecta, el cerebro la rechaza. Debe sentirse como "esto podría ser yo en 30 días". La saturación sube deliberadamente aquí — contrasta con la paleta apagada del problema.',
+    influence:50, ratio:'1:1 o 4:5', modo:'Lifestyle dorado aspiracional',
+    prompt:(p,b,a,e,c)=>`${a||'Person'} radiating the result of "${b}", VISIBLY transformed, the change is obvious and BELIEVABLE not fantasy — real human result, [${c||p}] subtly present in scene, GOLDEN HOUR lighting that makes everything feel magical, warm saturated color palette (deliberate contrast with earlier muted tones), genuine wide smile that reaches the eyes, open expansive body language — arms relaxed, posture confident, camera catches them in a natural joyful private moment not a pose, ${e||'high-end wellness lifestyle photography'}, 8k, this image makes the viewer think "I want to feel exactly like that"`,
+    steps:[
+      {t:'Influencia al 50%',d:'aquí la persona y la emoción son más importantes que el producto'},
+      {t:'Golden hour obligatorio',d:'"golden hour light" es la luz más aspiracional que existe'},
+      {t:'Resultado específico visible',d:'si vende piel firme, se ve en la piel. Si vende energía, en la postura'},
+      {t:'Genera 6 variantes',d:'elige la que se vea más "real" no la más perfecta'}
+    ]
+  },
+  {
+    name:'Prueba social — Comunidad real',
+    tag:'Rompe el escepticismo con autenticidad',
+    impact:3,
+    neuro:['Conformidad social','Prueba de masa','Estética UGC','Diversidad identificable'],
+    nc:['warn','warn','blue','green'],
+    regla_titulo:'Regla del contenido UGC',
+    regla:'Las fotos perfectas generan desconfianza. El cerebro detecta cuando algo parece stock. Una imagen que parece tomada por un cliente real — con imperfecciones, luz natural, encuadre no perfecto — activa el sesgo de conformidad: "si ellos lo usan, debo usarlo yo".',
+    influence:55, ratio:'16:9 o cuadrado', modo:'UGC — contenido orgánico real',
+    prompt:(p,b,a,e,c)=>`Authentic user-generated content style photo of diverse group of ${a||'real customers'} with [${c||p}], NOT a professional photoshoot — this looks like a genuine customer photo shared on social media, slight imperfections in framing and lighting make it feel REAL, different ages and appearances of ${a||'people'} who have achieved "${b}", natural indoor or outdoor environment, product visible in multiple hands, genuine group happiness not forced smiles, warm candid moment, smartphone photography aesthetic, the viewer thinks "these are real people just like me"`,
+    steps:[
+      {t:'Pide explícitamente "UGC aesthetic"',d:'cambia completamente el estilo — menos pulido, más real'},
+      {t:'Influencia al 55%',d:'el producto debe reconocerse pero no verse de catálogo'},
+      {t:'Diversidad de personas',d:'especifica edades y características de tu audiencia real'},
+      {t:'Acepta la imperfección',d:'si la imagen parece demasiado perfecta, pide regenerar'}
+    ]
+  },
+  {
+    name:'Oferta — Percepción de valor',
+    tag:'El producto debe verse como que vale el doble del precio',
+    impact:5,
+    neuro:['Anclaje de precio visual','Lujo percibido','Composición de deseo','Escasez implícita'],
+    nc:['red','red','blue','warn'],
+    regla_titulo:'Regla del anclaje de precio visual',
+    regla:'El cerebro decide si algo "vale" su precio en 50ms basándose solo en la imagen. Un producto en mármol blanco con props dorados se percibe como 3x más caro que el mismo producto en una mesa de madera. Esta imagen hace que el precio se sienta como una ganga.',
+    influence:80, ratio:'1:1 — limpio y simétrico', modo:'E-commerce de lujo, calidad máxima',
+    prompt:(p,b,a,e,c)=>`ULTRA PREMIUM luxury flat lay of [${c||p}], top-down bird's eye view, product placed on pristine white marble with subtle veining, product [${c||'with exact original packaging'}] occupies perfect center, PERFECT symmetrical composition, supporting luxury props that reinforce "${b}" arranged in golden ratio spiral around the product, FLAWLESS even studio lighting with zero harsh shadows — product seems to GLOW from within, every surface texture rendered in hyper-realistic detail, ${e||'ultra-premium brand photography'}, the product looks like it costs 10x more than it does, 8k`,
+    steps:[
+      {t:'Referencia al 80%',d:'aquí más importa que sea TU producto exacto'},
+      {t:'Especifica la superficie',d:'mármol blanco = premium, negro = lujo oscuro, lino = natural'},
+      {t:'Pide "golden ratio composition"',d:'Freepik lo interpreta como composición perfectamente balanceada'},
+      {t:'Ratio 1:1',d:'deja espacio debajo para el botón de compra en tu diseño'}
+    ]
+  },
+  {
+    name:'FAQ — Transparencia radical',
+    tag:'Elimina la última duda antes de comprar',
+    impact:3,
+    neuro:['Confianza por detalle','Reduce incertidumbre','Macro = honestidad','Enfoque científico'],
+    nc:['blue','blue','green','green'],
+    regla_titulo:'Regla de la transparencia visual',
+    regla:'La incertidumbre mata la conversión. Mostrar el producto en detalle extremo comunica honestidad. El cerebro interpreta "no tienen nada que ocultar" como señal de confianza. Cuanto más se ve, menos miedo.',
+    influence:85, ratio:'1:1 cuadrado', modo:'Macro producto, fondo neutro puro',
+    prompt:(p,b,a,e,c)=>`EXTREME macro product photography of [${c||p}], product fills 85% of frame, every single detail of [${c||'the packaging, label, texture'}] is hyper-sharp and perfectly readable, TRANSPARENT honest presentation — nothing hidden, the product label text is legible, the texture of the packaging is tactile you can almost feel it, pure white seamless background, CLINICAL perfect studio lighting from directly above, zero shadows, the viewer feels they are holding the product themselves, photorealistic 8k macro lens, ultra detailed, trustworthy scientific aesthetic`,
+    steps:[
+      {t:'Referencia al 85% — máxima aquí',d:'debe ser exactamente tu producto, sin variaciones'},
+      {t:'Pide que la etiqueta sea legible',d:'"label text clearly readable" aumenta mucho la confianza'},
+      {t:'Fondo blanco puro obligatorio',d:'cualquier color de fondo distrae de la transparencia'},
+      {t:'Úsala en 2-3 preguntas del FAQ',d:'diferentes ángulos del mismo producto'}
+    ]
+  },
+  {
+    name:'Garantía — Cero riesgo percibido',
+    tag:'Borra el miedo a equivocarse',
+    impact:4,
+    neuro:['Pérdida evitada','Calor humano','Espacio para badge','Producto en contexto seguro'],
+    nc:['green','green','blue','warn'],
+    regla_titulo:'Regla de la pérdida evitada',
+    regla:'El cerebro pesa más la posibilidad de perder que la de ganar. Esta imagen debe comunicar "no puedes perder". Manos que sostienen el producto con cuidado + espacio negativo donde irá el texto de garantía. La composición misma dice: estás protegido.',
+    influence:70, ratio:'16:9 — espacio negativo para texto', modo:'Lifestyle cálido, luz suave',
+    prompt:(p,b,a,e,c)=>`[${c||p}] held gently and confidently in caring hands, the product [${c||'with clear packaging'}] cradled as something precious and valuable, GENEROUS negative space on the left third of the frame (clean for text overlay), soft warm diffused lighting — no drama, just calm reassurance, neutral light background that fades to pure white on the left, the composition feels like "you are protected", ${e||'premium brand photography'}, the product looks permanent and trustworthy, this image makes the viewer feel SAFE buying, wide shot with lots of breathing room`,
+    steps:[
+      {t:'El espacio negativo es intencional',d:'deja el 40% izquierdo vacío — ahí irá el texto de garantía'},
+      {t:'Ratio 16:9 obligatorio',d:'necesitas el ancho para la composición con espacio para texto'},
+      {t:'Luz suave, sin dramatismo',d:'nada de sombras fuertes — todo debe sentirse calmado y seguro'},
+      {t:'Influencia al 70%',d:'las manos y el contexto importan tanto como el producto'}
+    ]
+  },
+  {
+    name:'CTA Final — La visión del futuro yo',
+    tag:'El visitante se imagina siendo esa persona',
+    impact:5,
+    neuro:['Proyección del yo futuro','Emoción peak','Luz cinematográfica','Urgencia aspiracional'],
+    nc:['red','red','warn','green'],
+    regla_titulo:'Regla del yo futuro',
+    regla:'La decisión de compra ocurre cuando el cerebro se proyecta en el futuro y ve que vale la pena. Esta imagen es la más emocional de toda la landing. No muestra el producto — muestra la VIDA que el producto hace posible. Si el visitante piensa "quiero ser esa persona", ya compró.',
+    influence:40, ratio:'16:9 o 4:5 — la más cinematográfica', modo:'Cinematográfico, luz dorada explosiva',
+    prompt:(p,b,a,e,c)=>`CINEMATIC lifestyle photograph, ${a||'person'} at the ABSOLUTE PEAK MOMENT of having achieved "${b}", this is the single best day of their life because of [${p}], [${c||'product'}] is subtly present or barely visible — EMOTION IS THE HERO not the product, EXPLOSIVE golden hour backlight creating a halo effect around the person, the scene feels like the climax of a movie, warm amber and gold color grade, the person's joy is SO real it's contagious — wide genuine smile, arms open or reaching up, body in motion, ${e||'award-winning lifestyle photography'}, cinematic lens flare from the sun, 8k, this image makes the viewer's heart ache to have that life`,
+    steps:[
+      {t:'Influencia al 40% — la más baja',d:'aquí la emoción manda sobre el producto. Deja que la IA vuele'},
+      {t:'Pide backlight y lens flare',d:'"backlit golden hour with lens flare" es la composición más emotiva'},
+      {t:'La persona en movimiento',d:'"person in motion" o "caught mid-laugh" se ve más real que posado'},
+      {t:'Esta imagen va en grande',d:'úsala a pantalla completa con el botón de compra encima'}
+    ]
+  }
+];
+
+let done = new Set();
+let activeIdx = -1;
+
+function getVals(){
+  return {
+    p: document.getElementById('f-prod').value.trim() || 'tu producto',
+    b: document.getElementById('f-ben').value.trim() || 'el beneficio principal',
+    a: document.getElementById('f-aud').value.trim() || '',
+    e: document.getElementById('f-est').value.trim() || '',
+    c: document.getElementById('f-col').value.trim() || ''
+  };
+}
+
+function dots(n, impact){
+  let h='';
+  for(let i=0;i<5;i++) h+=`<div class="dot ${i<n?(impact===5?'hi':'on'):''}"></div>`;
+  return h;
+}
+
+function buildNav(){
+  const nav = document.getElementById('sec-nav');
+  nav.innerHTML = '';
+  secs.forEach((s,i) => {
+    const isDone = done.has(i), isActive = activeIdx===i;
+    const el = document.createElement('div');
+    el.className = 'sec-nav-item' + (isActive?' active':'') + (isDone?' done':'');
+    el.onclick = () => showSec(i);
+    el.innerHTML = `<div class="sni-num ${isDone?'done-n':isActive?'active-n':''}">${isDone?'✓':(i+1)}</div>
+      <div class="sni-name ${isActive||isDone?'active-t':''}">${s.name.split('—')[0].trim()}</div>
+      <div class="sni-dots">${dots(s.impact,s.impact)}</div>`;
+    nav.appendChild(el);
+  });
+  const pct = Math.round((done.size/9)*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = done.size+' / 9';
+  document.getElementById('prog-pct').textContent = pct+'%';
+}
+
+function buildPanels(){
+  const container = document.getElementById('sec-panels');
+  container.innerHTML = '';
+  secs.forEach((s,i) => {
+    const div = document.createElement('div');
+    div.className = 'sec-detail';
+    div.id = 'sp-'+i;
+    div.innerHTML = `
+      <div class="sec-header">
+        <div class="sec-num-badge"><span>${i+1}</span> Sección ${i+1} de 9</div>
+        <div class="sec-title-main">${s.name}</div>
+        <div class="sec-tag-main">${s.tag}</div>
+      </div>
+      <div class="neuro-row">${s.neuro.map((n,j)=>`<div class="npill ${s.nc[j]}">${n}</div>`).join('')}</div>
+      <div class="rule-card">
+        <div class="rule-label">Principio de neuromarketing</div>
+        <div class="rule-title">${s.regla_titulo}</div>
+        <div class="rule-body">${s.regla}</div>
+      </div>
+      <div class="config-row">
+        <div class="config-chip"><div class="config-chip-label">Referencia imagen</div><div class="config-chip-val">${s.influence}%</div></div>
+        <div class="config-chip"><div class="config-chip-label">Ratio</div><div class="config-chip-val">${s.ratio}</div></div>
+        <div class="config-chip"><div class="config-chip-label">Modo</div><div class="config-chip-val">${s.modo}</div></div>
+      </div>
+      <div class="prompt-section">
+        <div class="prompt-label">Prompt para Freepik IA</div>
+        <div class="prompt-box" id="pb-${i}"><span class="prompt-placeholder">Haz clic en "Generar y copiar prompt" para crear el prompt con tus datos...</span></div>
+      </div>
+      <div class="steps-section">
+        <div class="prompt-label">Pasos en Freepik</div>
+        <div class="steps-list">${s.steps.map((st,j)=>`<div class="step-item"><div class="step-n">${j+1}.</div><div class="step-body"><strong>${st.t}:</strong> ${st.d}</div></div>`).join('')}</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-gen" id="bg-${i}" onclick="genCopy(${i})">Generar y copiar prompt</button>
+        <button class="btn-done-sec" onclick="markDone(${i})">Marcar como lista</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+function showSec(i){
+  activeIdx = i;
+  document.getElementById('welcome').style.display = 'none';
+  document.querySelectorAll('.sec-detail').forEach(el => el.classList.remove('visible'));
+  const panel = document.getElementById('sp-'+i);
+  panel.classList.add('visible');
+  buildNav();
+  document.getElementById('right-panel').scrollTop = 0;
+}
+
+function genCopy(i){
+  const v = getVals();
+  const prompt = secs[i].prompt(v.p,v.b,v.a,v.e,v.c);
+  const box = document.getElementById('pb-'+i);
+  box.textContent = prompt;
+  box.classList.add('generated');
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn = document.getElementById('bg-'+i);
+    btn.textContent = 'Copiado al portapapeles';
+    btn.classList.add('ok');
+    setTimeout(() => {
+      btn.textContent = 'Generar y copiar prompt';
+      btn.classList.remove('ok');
+    }, 2500);
+  }).catch(() => {
+    const btn = document.getElementById('bg-'+i);
+    btn.textContent = 'Prompt generado — selecciona y copia';
+  });
+}
+
+function markDone(i){
+  done.add(i);
+  const nextIdx = i < 8 ? i+1 : -1;
+  if(nextIdx >= 0) showSec(nextIdx);
+  else { activeIdx = -1; buildNav(); }
+  buildNav();
+}
+
+function handleImg(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    document.getElementById('pvi').src = ev.target.result;
+    document.getElementById('pv').style.display = 'block';
+    document.getElementById('uz').classList.add('loaded');
+    document.getElementById('uz-txt').textContent = 'Producto cargado: '+f.name;
+    document.getElementById('uz-txt').className = 'upload-text ok';
+  };
+  r.readAsDataURL(f);
+}
+
+buildNav();
+buildPanels();
+</script>
+</body>
+</html>
